@@ -13,15 +13,16 @@ class Config(object):
     style_weight=1e10
     lr=1e-3
     epoches=20
+    device = torch.device("cuda" if use_cuda else "cpu")
 
 def train():
     cfg = Config()
-    vgg = Vgg16().eval()
+    vgg = Vgg16().to(device).eval()
     for param in vgg,parameters():
         param.requires_grad = False
     # 固定网络的参数
-    content = utils.get_image_data(cfg.content_path)
-    style = utils.get_image_data(cfg.style_path)
+    content = utils.get_image_data(cfg.content_path).to(device)
+    style = utils.get_image_data(cfg.style_path).to(device)
     target = content.clone().requires_grad_(True)
 
     content_features = vgg(content)
@@ -44,5 +45,5 @@ def train():
         optimizer.step()
         print("iteration:{},Content loss:{:.4f},Style loss:{:.4f},Total loss:{:.4f}"
         .format(epoch+1,content_loss.item(),style_loss.item(),total_loss.item()))
-    target = target.clamp(min = 0,max = 1)
+    target = target.clamp(min = 0,max = 1).squeeze()
     tv.utils.save_image(target,cfg.combined_path+'output.png')
