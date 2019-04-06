@@ -1,4 +1,4 @@
-import pytorch as t
+import torch as t
 import torchvision as tv
 import numpy as np
 
@@ -14,8 +14,8 @@ imagenet_std = [0.229, 0.224, 0.225]
 
 def get_image_data(path,image_size):
     image_transforms=tv.transforms.Compose([
-    tv.transforms.Resize(image_size)
-    tv.transforms.CenterCrop(image_size)
+    tv.transforms.Resize(image_size),
+    tv.transforms.CenterCrop(image_size),
     tv.transforms.ToTensor(),
     tv.transforms.Normalize(mean=imagenet_mean,std=imagenet_std),
     ])
