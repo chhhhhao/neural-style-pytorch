@@ -6,7 +6,7 @@ def gram_matrix(y):
     b,c,h,w = y.size()
     feature = y.view(b,c,h*w)
     gram = t.bmm(feature,feature.transpose(1,2))
-
+    return gram
 imagenet_mean = [0.485, 0.456, 0.406]
 imagenet_std = [0.229, 0.224, 0.225]
 #  vgg16 是在imagenet 上训练的
@@ -20,5 +20,5 @@ def get_image_data(path,image_size):
     tv.transforms.Normalize(mean=imagenet_mean,std=imagenet_std),
     ])
     image = tv.datasets.folder.default_loader(path)
-    img_tensor = img_transforms(image).unsqueeze(0)
+    img_tensor = image_transforms(image).unsqueeze(0)
     return img_tensor
