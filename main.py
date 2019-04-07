@@ -4,7 +4,7 @@ import utils
 from modifiedVGG import Vgg16
 from torch.nn import functional as F
 class Config(object):
-    image_size=1024
+    image_size=512
     style_path='style_images/style.jpg'
     content_path='content_images/content.jpg'
     combined_path='combined_images'
@@ -12,7 +12,7 @@ class Config(object):
     content_weight=1e5
     style_weight=1e10
     lr=1e-3
-    epoches=5000
+    epoches=10000
     device = t.device("cuda" if t.cuda.is_available() else "cpu")
 
 def train():
@@ -31,7 +31,6 @@ def train():
     gram_styles = [utils.gram_matrix(x).requires_grad_(False) for x in style_features]
         # 注意要使style——gram的requires_grad置于False，F.mse_loss要求
     optimizer = t.optim.Adam([target],lr=cfg.lr)
-
     for epoch in range(cfg.epoches):
         target_features = vgg(target)
         content_loss = F.mse_loss(target_features.relu3_3,content_features.relu3_3.requires_grad_(False))
@@ -44,7 +43,8 @@ def train():
         optimizer.zero_grad()
         total_loss.backward()
         optimizer.step()
-        print("iteration:{},Content loss:{:.4f},Style loss:{:.4f},Total  loss:{:.4f}".format(epoch+1,content_loss.item(),style_loss.item(),total_loss.item()))
+        if epoch%100 == 0:
+            print("iteration:{}  Content loss:{:.4f},Style loss:{:.4f},Total loss:{:.4f}".format(epoch+1,content_loss.item(),style_loss.item(),total_loss.item()))
 
     denorm = tv.transforms.Normalize([-2.12,-2.04,-1.80],[4.37,4.46,4.44])
     target = denorm(target.squeeze().to('cpu')).clamp_(min = 0,max = 1)
