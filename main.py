@@ -9,10 +9,10 @@ class Config(object):
     content_path='content_images/content.jpg'
     combined_path='combined_images'
 
-    content_weight=1e5
-    style_weight=1e10
+    content_weight=1
+    style_weight=1000
     lr=1e-3
-    epoches=10000
+    epoches=7000
     device = t.device("cuda" if t.cuda.is_available() else "cpu")
 
 def train():
@@ -48,6 +48,6 @@ def train():
 
     denorm = tv.transforms.Normalize([-2.12,-2.04,-1.80],[4.37,4.46,4.44])
     target = denorm(target.squeeze().to('cpu')).clamp_(min = 0,max = 1)
-    tv.utils.save_image(target,cfg.combined_path + '/output.png')
+    tv.utils.save_image(target,cfg.combined_path + '/output '+str(cfg.content_weight/cfg.style_weight)+'.png')
 
 train()
