@@ -12,7 +12,7 @@ class Config(object):
     content_weight=1
     style_weight=1000
     lr=1e-3
-    epoches=7000
+    epoches=10000
     device = t.device("cuda" if t.cuda.is_available() else "cpu")
 
 def train():
@@ -29,6 +29,7 @@ def train():
     content_features = vgg(content)
     style_features = vgg(style)
     gram_styles = [utils.gram_matrix(x).requires_grad_(False) for x in style_features]
+    batches,channels,h,w=list(gram_styles.size())
         # 注意要使style——gram的requires_grad置于False，F.mse_loss要求
     optimizer = t.optim.Adam([target],lr=cfg.lr)
     for epoch in range(cfg.epoches):
@@ -39,6 +40,7 @@ def train():
         for tar,gram_style in zip(target_features,gram_styles):
             tar_gram = utils.gram_matrix(tar)
             style_loss += F.mse_loss(tar_gram,gram_style)
+        style_loss = style_loss/(2*channels*h*w)^2
         total_loss = cfg.content_weight*content_loss + cfg.style_weight*style_loss
         optimizer.zero_grad()
         total_loss.backward()
